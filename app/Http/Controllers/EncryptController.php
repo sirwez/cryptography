@@ -12,13 +12,13 @@ class EncryptController extends Controller
     {
         // Criptografar o documento do usuário e o token do cartão de crédito
         $document = \encrypt($request->userDocument);
-        $card = \encrypt($request->creditCardToken);
+        $token = \encrypt($request->creditCardToken);
         $value = $request->value;
 
         // Criar uma nova instância do modelo Encrypt e salvar os dados
         $encrypt = new Encrypt();
         $encrypt->userDocument = $document;
-        $encrypt->creditCardToken = $card;
+        $encrypt->creditCardToken = $token;
         $encrypt->value = $value;
         $encrypt->save();
 
@@ -33,4 +33,22 @@ class EncryptController extends Controller
         ], 201);
     }
 
+    public function getCard(Request $request){
+        $validatedData = $request->validate ([
+            'id' => 'required|numeric'
+        ]);
+        $CardData = Encrypt::where('id', $validatedData['id'])->first();
+        $document = decrypt ($CardData->userDocument);
+        $token = decrypt($CardData->creditCardToken);
+        $value = $CardData->value;
+        return response ()->json ([
+            'success' => true,
+            'message' => 'Dados descriptografados com sucesso.',
+            'data' => [
+                'document' => $document,
+                'token' => $token ,
+                'value' => $value
+            ]
+        ]);
+    }
 }
