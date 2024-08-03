@@ -8,14 +8,13 @@ use Illuminate\Http\Request;
 
 class EncryptController extends Controller
 {
-    public function postCard(EncryptRequest $request)
+    //Responsavel por criar as carteiras com o saldo
+    public function postCardBalance(EncryptRequest $request)
     {
-        // Criptografar o documento do usuário e o token do cartão de crédito
         $document = \encrypt($request->userDocument);
         $token = \encrypt($request->creditCardToken);
         $value = $request->value;
 
-        // Criar uma nova instância do modelo Encrypt e salvar os dados
         $encrypt = new Encrypt();
         $encrypt->userDocument = $document;
         $encrypt->creditCardToken = $token;
@@ -33,14 +32,25 @@ class EncryptController extends Controller
         ], 201);
     }
 
-    public function getCard(Request $request){
-        $validatedData = $request->validate ([
-            'id' => 'required|numeric'
-        ]);
-        $CardData = Encrypt::where('id', $validatedData['id'])->first();
+    public function BuyItem(EncryptRequest $request){
+
+        $CardData = Encrypt::where('id', $request->id)->first();
         $document = decrypt ($CardData->userDocument);
         $token = decrypt($CardData->creditCardToken);
+        if($document != $request->userDocument && $token != $request->creditCardToken){
+            return response ()->json ([
+                'success' => false,
+                'message' => 'Credenciais incorretas'
+            ]);
+        }
         $value = $CardData->value;
+        if (($value - $request->value) > 0){
+            return response ()->json ([
+                'success' => false,
+                'message' => 'Saldo insuficiente'
+            ]);
+        }
+
         return response ()->json ([
             'success' => true,
             'message' => 'Dados descriptografados com sucesso.',
