@@ -10,8 +10,10 @@ class Encrypt extends Model
     use HasFactory;
     protected $fillable = [
         'userDocument',
+        'documentSalt',
         'creditCardToken',
+        'tokenSalt',
         'value',
     ];
-        
+
 }

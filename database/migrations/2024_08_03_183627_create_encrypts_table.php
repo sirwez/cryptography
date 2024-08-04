@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('encrypts', function (Blueprint $table) {
             $table->id();
             $table->text('userDocument');
+            $table->text('documentSalt');
             $table->text('creditCardToken');
+            $table->text('tokenSalt');
             $table->decimal('value');
             $table->timestamps();
         });
